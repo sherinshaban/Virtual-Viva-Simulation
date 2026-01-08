@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AI Meeting</title>
+<style>
+body {
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+  background: #001133;
+  color: white;
+  overflow: hidden;}
+.container {
+  display: grid;
+  grid-template-columns: 1fr 1fr; 
+  height: 100vh;}
+.video-section {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  background: #001133;
+  opacity: 0;
+  transition: opacity 0.8s ease;
+  position: relative;
+  border-right: 2px solid rgba(255,255,255,0.15);}
+.video-section.show { opacity: 1; }
+video {
+  width: 90%;
+  height: 50%;
+  border-radius: 10px;
+  border: 4px solid #0a4ca3;
+  background: black;
+  box-shadow: 0 0 15px rgba(10,76,163,0.7);
+  margin-bottom: 25px;}
+.camera-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 18px;
+  background: rgba(0,0,0,0.5);
+  padding: 5px 10px;
+  border-radius: 8px;
+  display: none;
+  pointer-events: none;}
+.controls {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  opacity: 0;
+  transition: opacity 0.8s ease;}
+.controls.show { opacity: 1; }
+.ctrl-btn {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background:transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  transition: transform 0.3s, box-shadow 0.3s;}
+.ctrl-btn:hover { transform: scale(1.1); box-shadow: 0 0 10px #3f7fff; }
+.ctrl-btn img { width: 45px; height: 45px; background: transparent;}
+.ctrl-btn.striked::after {
+  content: '';
+  position: absolute;
+  width: 38px;
+  height: 3px;
+  background: rgb(0,0,0);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%) rotate(-45deg);
+  border-radius: 2px;}
+.questions-section {
+  padding: 20px 30px;
+  overflow-y: auto;}
+.file-name {
+  background: white;
+  color: #001133;
+  font-weight: bold;
+  padding: 10px 20px;
+  border-radius: 12px;
+  text-align: center;
+  margin-bottom: 15px;
+  width: fit-content;
+  margin-left: auto;
+  margin-right: auto;}
+.question-step {
+  position: absolute;
+  top: 10px;
+  right: 20px;
+  background: rgba(0,0,0,0.5);
+  color: white;
+  padding: 5px 15px;
+  border-radius: 10px;
+  font-size: 14px;}
+.question-card {
+  background: #111;
+  padding: 20px;
+  border-radius: 12px;
+  margin-top: 20px;
+  border-left: 5px solid #0a4ca3;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;}
+.record-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 28px;
+  background:#0a4ca3;
+  border: none;
+  border-radius: 8px;
+  color: #fefefe;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 0.3s ease;}
+.record-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 8px #0a4ca3;}
+.record-dot {
+  width: 12px;
+  height: 12px;
+  background: red;
+  border-radius: 50%;}
+.record-btn.recording {
+  background: darkred;
+  box-shadow: 0 0 10px red;
+  animation: pulse 1s infinite;}
+@keyframes pulse {
+  0% { box-shadow: 0 0 6px red; }
+  50% { box-shadow: 0 0 12px red; }
+  100% { box-shadow: 0 0 6px red; }}
+.next-btn {
+  background: #0a4ca3;
+  border: none;
+  padding: 10px 28px;
+  border-radius: 8px;
+  color: rgb(255, 255, 255);
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 0.3s ease;}
+.next-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 8px #0a4ca3;}
+.button-group {
+  display: flex;
+  gap: 30px;  
+  align-items: center;}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="video-section" id="videoSection">
+      <video id="meetingVideo" autoplay></video>
+      <div class="camera-overlay" id="cameraOverlay">Camera Off</div>
+      <div class="video-header">
+          <div class="timer" id="timer">00:00:00</div>
+      </div>
+      <div class="controls" id="controls">
+          <button class="ctrl-btn" id="muteBtn">
+            <img src="Annotation_2025-11-28_220543-removebg-preview.png" alt="Mic">
+          </button>
+          <button class="ctrl-btn striked" id="cameraBtn">
+            <img src="Annotation_2025-11-28_213516-removebg-preview (1).png" alt="Camera">
+          </button>
+          <button class="ctrl-btn striked" id="recordBtn">
+            <img src="Annotation_2025-11-28_213244-removebg-preview.png" alt="Record">
+          </button>
+          <button class="ctrl-btn" id="endBtn">
+            <img src="Annotation_2025-11-28_120500-removebg-preview.png" alt="End">
+          </button>
+      </div>
+  </div>
+  <div class="questions-section" id="questionsList">
+      <div class="file-name" id="fileNameDisplay">
+        Project: N/A | File: N/A
+      </div>
+      <div class="question-step" id="questionStep">Question 1 of 3</div>
+      <div id="questionContainer"></div>
+  </div>
+</div>
+<script>
+let stream;
+const cameraBtn = document.getElementById('cameraBtn');
+const cameraOverlay = document.getElementById('cameraOverlay');
+cameraOverlay.style.display ='Block'
+let seconds = 0;
+const timerElement = document.getElementById('timer');
+setInterval(() => {
+    seconds++;
+    let h = String(Math.floor(seconds/3600)).padStart(2,'0');
+    let m = String(Math.floor((seconds%3600)/60)).padStart(2,'0');
+    let s = String(seconds%60).padStart(2,'0');
+    timerElement.textContent = `${h}:${m}:${s}`;
+}, 1000);
+navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+.then(s => {
+  stream = s;
+  stream.getVideoTracks()[0].enabled = false;
+  document.getElementById('meetingVideo').srcObject = stream;})
+.catch(err => console.error('Error accessing media:', err));
+function toggleControl(button, track){
+    if(track) track.enabled = !track.enabled;
+    button.classList.toggle('striked');}
+document.getElementById('muteBtn').onclick = () => 
+  toggleControl(document.getElementById('muteBtn'), stream.getAudioTracks()[0]);
+cameraBtn.onclick = () => {
+  toggleControl(cameraBtn, stream.getVideoTracks()[0]);
+  cameraOverlay.style.display = stream.getVideoTracks()[0].enabled ? 'none' : 'block';};
+const recordBtn = document.getElementById('recordBtn');
+let videoRecorder;
+let videoAudioChunks = [];
+let videoRecording = false;
+recordBtn.onclick = () => {
+    if (!stream) { alert("Camera/Audio not ready!"); return; }
+    videoRecording = !videoRecording;
+    if (videoRecording) {
+        recordBtn.classList.remove("striked");
+        videoRecorder = new MediaRecorder(stream);
+        videoAudioChunks = [];
+        videoRecorder.ondataavailable = e => videoAudioChunks.push(e.data);
+        videoRecorder.onstop = () => {
+            const blob = new Blob(videoAudioChunks, { type: "audio/mp3" });
+            const a = document.createElement("a");
+            a.href = URL.createObjectURL(blob);
+            a.download = "meeting_record.mp3";
+            a.click();};
+        videoRecorder.start();
+    } else {
+        recordBtn.classList.add("striked");
+        videoRecorder.stop(); }};
+const endBtn = document.getElementById('endBtn');
+endBtn.onclick = () => {
+  if(stream) stream.getTracks().forEach(t => t.stop());
+  document.body.innerHTML = '<h1 style="text-align:center;margin-top:200px;">Meeting Ended</h1>';};
+const fileNameDiv = document.getElementById('fileNameDisplay');
+const projectName = localStorage.getItem('projectName') || "N/A";
+const fileName = localStorage.getItem('fileName') || "N/A";
+fileNameDiv.textContent = `Project Name: ${projectName} | File: ${fileName}`;
+
+
+
+// ... (الكود اللي فوق زي ما هو لحد سطر fileNameDiv)
+
+// بديل لقائمة الأسئلة الثابتة
+// بنجيب الأسئلة من الذاكرة اللي index.html حفظها
+let questions = [];
+const storedQuestions = localStorage.getItem('aiQuestions');
+
+if (storedQuestions) {
+    // بنحول النص لـ Array تاني
+    const aiData = JSON.parse(storedQuestions);
+    
+    // بنظبط شكل الداتا عشان يناسب الكود بتاعك (q instead of question)
+    questions = aiData.map(item => ({
+        type: 'text',
+        q: item.question // Gemini بيرجع key اسمه question واحنا هنا بنستخدم q
+    }));
+} else {
+    // لو مفيش أسئلة جت، نحط أسئلة احتياطي
+    questions = [
+        {type:'text', q:'Could not load AI questions. Explain your project goal:'},
+        {type:'text', q:'What technologies did you use?'}
+    ];
+}
+
+// ... (باقي الكود زي ما هو: let currentIndex = 0; etc...)
+
+let currentIndex = 0;
+const container = document.getElementById("questionContainer");
+const questionStep = document.getElementById("questionStep");
+function updateStep() {
+    questionStep.textContent = `Question ${currentIndex + 1} of ${questions.length}`;}
+function loadQuestion() {
+    container.innerHTML = "";
+    const item = questions[currentIndex];
+    const card = document.createElement("div");
+    card.className = "question-card";
+    const q = document.createElement("p");
+    q.innerText = item.q;
+    card.appendChild(q);
+    const buttonGroup = document.createElement("div");
+    buttonGroup.className = "button-group";
+    const recBtn = document.createElement("button");
+    recBtn.className = "record-btn";
+    const dot = document.createElement("div");
+    dot.className = "record-dot";
+    const text = document.createElement("span");
+    text.textContent = "RECORD";
+
+    recBtn.appendChild(dot);
+    recBtn.appendChild(text);
+    let recorder;
+    let chunks = [];
+    let recording = false;
+    recBtn.onclick = () => {
+        recording = !recording;
+        if (recording) {
+            recBtn.classList.add("recording");
+            recorder = new MediaRecorder(stream);
+            chunks = [];
+            recorder.ondataavailable = e => chunks.push(e.data);
+            recorder.onstop = () => {
+                const blob = new Blob(chunks, { type: "audio/mp3" });
+                const a = document.createElement("a");
+                a.href = URL.createObjectURL(blob);
+                a.download = `answer_${currentIndex + 1}.mp3`;
+                a.click();};
+            recorder.start();
+        } else {
+            recBtn.classList.remove("recording");
+            recorder.stop();} };
+    const next = document.createElement("button");
+    next.className = "next-btn";
+    next.innerText = "NEXT";
+    next.onclick = () => {
+        if(currentIndex < questions.length-1) {
+            currentIndex++;
+            updateStep();
+            loadQuestion();
+        } else {
+            container.innerHTML = `<h2>✔ All questions completed!</h2>`;
+            questionStep.style.display = 'none';} };
+    buttonGroup.appendChild(recBtn);
+    buttonGroup.appendChild(next);
+    card.appendChild(buttonGroup);
+    container.appendChild(card);}
+loadQuestion();
+window.addEventListener('load', () => {
+  document.getElementById('videoSection').classList.add('show');
+  document.getElementById('controls').classList.add('show');
+});
+</script>
+</body>
+</html>

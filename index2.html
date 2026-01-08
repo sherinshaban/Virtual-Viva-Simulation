@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Virtual Viva Simulation</title>
+<style>
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(135deg, #0a0f2d, #112255);
+  color: white;
+  overflow-x: hidden;}
+#title {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 40px;
+  font-weight: bold;
+  color: #4da6ff;
+  text-shadow: 0 0 10px #4da6ff, 0 0 20px #4da6ff;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 2000;}
+.start-btn {
+  position: fixed;
+  top: 20px;
+  right: 25px;
+  padding: 10px 25px;
+  background: white;
+  color: #001133;
+  border-radius: 10px;
+  font-size: 16px;
+  cursor: pointer;
+  box-shadow: 0 0 15px rgba(255,255,255,0.5);
+  z-index: 1000;}
+.start-btn:hover { transform: scale(1.05); }
+.small-logo {
+  position: fixed;
+  top: 20px;
+  left: 25px;
+  width: 110px;
+  height: 55px;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: transform 0.3s;
+  z-index: 1000;}
+.small-logo:hover { transform: scale(1.1); }
+.center {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  position: relative;
+  margin-top: 110px; }
+.logo {
+  width: 350px;
+  height: 400px;
+  background-image: url('output-onlinegiftools (4).gif'); 
+  background-size: cover;
+  background-position: center;
+  cursor: pointer;
+  transition: transform 0.8s ease;
+  border-radius: 20px;
+  box-shadow: 0 0 20px #1a3cff, 0 0 30px #001133;
+  animation: glow 2s infinite alternate;
+  position: relative;
+  margin-bottom: 30px;}
+.logo.moved { transform: translateX(300px); }
+@keyframes glow {
+  0% { box-shadow: 0 0 20px #1a3cff, 0 0 30px #001133; }
+  50% { box-shadow: 0 0 35px #3f7fff, 0 0 50px #001144; }
+  100% { box-shadow: 0 0 20px #1a3cff, 0 0 30px #001133; }}
+.info-box {
+  position: absolute;
+  left: 220px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 400px;
+  color: white;
+  opacity: 0;
+  transition: opacity 0.5s, font-size 0.3s;
+  font-size: 18px;}
+.info-box.show {
+  opacity: 1;
+  font-size: 15px;}
+.info-box .about-start-btn {
+  margin-top: 10px;
+  padding: 8px 20px;
+  background: white;
+  color: #001133;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  box-shadow: 0 0 10px rgba(255,255,255,0.5);}
+.info-box .about-start-btn:hover { transform: scale(1.05); }
+.popup-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(5px);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;}
+.popup-box {
+  width: 350px;
+  background: #ffffff;
+  color: #001133;
+  padding: 25px;
+  border-radius: 20px;
+  box-shadow: 0 0 25px rgba(255,255,255,0.4);
+  animation: pop 0.5s ease;
+  text-align: center;}
+@keyframes pop {
+  0% { transform: scale(0.6) translateY(-20px); opacity: 0; }
+  60% { transform: scale(1.05) translateY(5px); opacity: 1; }
+  80% { transform: scale(0.98) translateY(-2px); }
+  100% { transform: scale(1) translateY(0); }}
+.popup-box input[type="text"],
+.popup-box input[type="file"] {
+  padding: 10px;
+  width: 90%;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  margin-bottom: 15px;}
+.popup-box .popup-btn {
+  padding: 10px 20px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.3s;
+  margin: 5px;}
+.popup-box .cancel-btn { background: #001133; color: white; }
+.popup-box .ok-btn { background: #1a3cff; color: white; }
+.popup-box .popup-btn:hover { transform: scale(1.05); }
+</style>
+</head>
+<body>
+<h1 id="title"></h1>
+<img src="Annotation 2025-11-26 210646.png" class="small-logo" alt="menu">
+<div class="center">
+  <div class="logo" id="logo"></div>
+  <button class="start-btn" id="startBtn">Start</button>
+  <div class="info-box" id="info">
+    <p>This platform uses AI to simulate viva exams and evaluate responses.</p>
+    <p>About: Our system allows students to practice viva exams anytime and receive instant feedback. You can upload projects, simulate questions, and improve your performance efficiently.</p>
+<p>
+The system also allows instructors to create custom question sets, evaluate student performance, and provide personalized guidance. Whether preparing for university vivas, job interviews, or professional assessments, our platform ensures a comprehensive, interactive, and effective learning experience.
+</p>
+<p>
+With a user-friendly interface, interactive simulations, and insightful analytics, Virtual Viva Simulation empowers learners to build confidence, enhance their communication skills, and succeed in any oral examination scenario.
+</p>
+    <button class="about-start-btn" id="aboutStartBtn">Start</button>
+  </div>
+</div>
+<div class="popup-bg" id="popup">
+  <div class="popup-box">
+    <h2>Upload Your Project</h2>
+    <input type="text" placeholder="Project Name">
+    <input type="file">
+    <div>
+      <button class="popup-btn cancel-btn" id="cancelBtn">Cancel</button>
+      <button class="popup-btn ok-btn" id="okBtn">OK</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const logo = document.getElementById('logo');
+const info = document.getElementById('info');
+const smallLogo = document.querySelector('.small-logo');
+const startBtn = document.getElementById('startBtn');
+const aboutStartBtn = document.getElementById('aboutStartBtn');
+const popup = document.getElementById('popup');
+const cancelBtn = document.getElementById('cancelBtn');
+const okBtn = document.getElementById('okBtn');
+const title = document.getElementById("title");
+const text = "Virtual Viva Simulation";
+let index = 0;
+function typeEffect() {
+    if (index < text.length) {
+        title.innerHTML += text[index];
+        index++;
+        setTimeout(typeEffect, 50); // سرعة الكتابة
+    }
+}
+window.onload = () => {
+    title.innerHTML = "";
+    index = 0;
+    typeEffect();
+};
+function toggleInfo() {
+  logo.classList.toggle('moved');
+  info.classList.toggle('show');}
+logo.addEventListener('click', toggleInfo);
+smallLogo.addEventListener('click', toggleInfo);
+startBtn.addEventListener('click', () => popup.style.display = "flex");
+aboutStartBtn.addEventListener('click', () => popup.style.display = "flex");
+cancelBtn.addEventListener('click', () => popup.style.display = "none");
+
+
+
+
+okBtn.onclick = async () => {
+  const projectName = popup.querySelector('input[type="text"]').value;
+  const fileInput = popup.querySelector('input[type="file"]');
+  const file = fileInput.files[0];
+
+  if (projectName && file) {
+    okBtn.innerText = "Generating...";
+    okBtn.disabled = true;
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      console.log(" Sending request to Python...");
+      const response = await fetch('http://127.0.0.1:5000/upload', {
+        method: 'POST',
+        body: formData
+      });
+
+      console.log(" Response Status:", response.status);
+
+      const data = await response.json();
+      console.log(" DATA RECEIVED FROM PYTHON:", data); 
+
+      if (data.questions) {
+        // try to saved data in local storage
+        localStorage.setItem('projectName', projectName);
+        localStorage.setItem('fileName', file.name);
+        localStorage.setItem('aiQuestions', JSON.stringify(data.questions)); // to cover array to text before storing
+        
+        // ensure it's saved
+        const checkSave = localStorage.getItem('aiQuestions');
+        console.log(" Checked Storage:", checkSave);
+
+        if(checkSave) {
+           // alert("The Question is saved");
+            window.location.href = 'video.html';
+        } else {
+            //alert("Data is received but doesn't saved in memory");
+        }
+
+      } else {
+        console.error(" Data has no 'questions' key:", data);
+        alert("Serevr returned data but NO questions found! Check Console.");
+        okBtn.innerText = "OK";
+        okBtn.disabled = false;
+      }
+
+    } catch (error) {
+      console.error("Connection Error:", error);
+      alert("Error connecting to server!");
+      okBtn.innerText = "OK";
+      okBtn.disabled = false;
+    }
+  } else {
+    alert("Please enter project name and select a file!");
+  }
+};
+</script>
+</body>
+</html>
